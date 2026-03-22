@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kos Pak Budi — Manajemen Kamar</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f3ee;
+  --surface: #ffffff;
+  --surface2: #f0ede6;
+  --border: #e2ddd4;
+  --text: #1c1812;
+  --text2: #6b6254;
+  --text3: #a89e8e;
+  --green: #2d7a4f;
+  --green-bg: #e8f5ee;
+  --green-border: #b8dfc8;
+  --red: #c0392b;
+  --red-bg: #fdecea;
+  --red-border: #f5c0bb;
+  --yellow: #b07d2a;
+  --yellow-bg: #fef8ec;
+  --yellow-border: #f0d898;
+  --accent: #1c1812;
+  --radius: 14px;
+  --font-head: 'Syne', sans-serif;
+  --font-body: 'Epilogue', sans-serif;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/*  TOP BAR  */
+.topbar {
+  background: linear-gradient(135deg, #1c1812 0%, #2e2416 100%);
+  color: #f5f3ee;
+  padding: 0 32px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  box-shadow: 0 2px 20px rgba(0,0,0,0.25);
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar-logo-icon {
+  width: 34px; height: 34px;
+  background: linear-gradient(135deg, #c8a96e, #e8c97e);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.topbar-logo-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar-logo-name {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #f5f3ee;
+  line-height: 1.1;
+}
+
+.topbar-logo-sub {
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.topbar-stats {
+  display: flex;
+  gap: 8px;
+}
+
+.tstat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 10px;
+  padding: 7px 14px;
+}
+
+.tstat-val {
+  font-family: var(--font-head);
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.tstat-val.green { color: #6de0a0; }
+.tstat-val.red   { color: #f08080; }
+.tstat-val.white { color: #f5f3ee; }
+
+.tstat-label {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+/*  LAYOUT  */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 0;
+  min-height: calc(100vh - 58px);
+}
+
+/*  LEFT: ROOM MAP  */
+.room-section {
+  padding: 32px;
+  overflow-y: auto;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-family: var(--font-head);
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.legend {
+  display: flex;
+  gap: 16px;
+}
+
+.leg {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--text2);
+  font-weight: 500;
+}
+
+.leg-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+}
+
+.leg-dot.kosong { background: var(--green); }
+.leg-dot.terisi { background: var(--red); }
+.leg-dot.rusak  { background: var(--yellow); }
+
+/*  FLOOR  */
+.floor-label {
+  font-family: var(--font-head);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 10px;
+  margin-top: 28px;
+}
+
+.floor-label:first-of-type { margin-top: 0; }
+
+.room-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+/*  ROOM CARD  */
+.room-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 14px 14px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  position: relative;
+  user-select: none;
+}
+
+.room-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(28,24,18,0.1);
+}
+
+.room-card.kosong {
+  border-color: var(--green-border);
+  background: var(--green-bg);
+}
+
+.room-card.terisi {
+  border-color: var(--red-border);
+  background: var(--red-bg);
+}
+
+.room-card.rusak {
+  border-color: var(--yellow-border);
+  background: var(--yellow-bg);
+  opacity: 0.75;
+}
+
+.room-card.selected {
+  box-shadow: 0 0 0 3px var(--text), 0 8px 24px rgba(28,24,18,0.15);
+  transform: translateY(-3px);
+}
+
+.room-number {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 8px;
+  letter-spacing: 0.01em;
+}
+
+.room-status-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+}
+
+.room-card.kosong .room-status-badge { background: var(--green); color: white; }
+.room-card.terisi .room-status-badge { background: var(--red); color: white; }
+.room-card.rusak  .room-status-badge { background: var(--yellow); color: white; }
+
+.room-tenant {
+  font-size: 0.75rem;
+  color: var(--text2);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.room-price {
+  font-size: 0.72rem;
+  color: var(--text3);
+  margin-top: 3px;
+}
+
+/*  RIGHT: PANEL  */
+.side-panel {
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 58px;
+  height: calc(100vh - 58px);
+  overflow-y: auto;
+}
+
+.panel-header {
+  padding: 24px 24px 0;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 20px;
+}
+
+.panel-title {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.panel-sub {
+  font-size: 0.78rem;
+  color: var(--text3);
+}
+
+.panel-body {
+  padding: 24px;
+  flex: 1;
+}
+
+/*  NO SELECTION STATE  */
+.no-selection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: var(--text3);
+  padding: 40px 24px;
+}
+
+.no-sel-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  opacity: 0.4;
+}
+
+.no-sel-text {
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+/*  ROOM DETAIL  */
+.detail-room-num {
+  font-family: var(--font-head);
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.detail-price {
+  font-size: 0.875rem;
+  color: var(--text2);
+  margin-bottom: 16px;
+}
+
+.detail-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 40px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.detail-status.kosong { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.detail-status.terisi { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.detail-status.rusak  { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+
+/*  TENANT INFO  */
+.tenant-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 20px;
+}
+
+.tenant-card-title {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 12px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.82rem;
+}
+
+.info-row:last-child { border-bottom: none; }
+.info-row-label { color: var(--text2); }
+.info-row-value { font-weight: 600; color: var(--text); }
+
+/*  FORM  */
+.form-title {
+  font-family: var(--font-head);
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.form-group { margin-bottom: 14px; }
+
+.form-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text2);
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 13px;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.form-input:focus {
+  border-color: var(--text);
+  background: white;
+}
+
+.form-input::placeholder { color: var(--text3); }
+
+/*  BUTTONS  */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-top: 6px;
+}
+
+.btn-primary {
+  background: var(--text);
+  color: #f5f3ee;
+}
+
+.btn-primary:hover {
+  background: #3a3228;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(28,24,18,0.2);
+}
+
+.btn-danger {
+  background: var(--red-bg);
+  color: var(--red);
+  border: 1.5px solid var(--red-border);
+}
+
+.btn-danger:hover {
+  background: #fbd7d4;
+}
+
+.btn-secondary {
+  background: var(--surface2);
+  color: var(--text2);
+  border: 1.5px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+/*  DIVIDER  */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 20px 0;
+}
+
+/*  STATUS CHANGE  */
+.status-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.status-btn {
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1.5px solid;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.status-btn.kosong {
+  background: var(--green-bg);
+  color: var(--green);
+  border-color: var(--green-border);
+}
+
+.status-btn.kosong:hover { background: #d0eedc; }
+
+.status-btn.rusak {
+  background: var(--yellow-bg);
+  color: var(--yellow);
+  border-color: var(--yellow-border);
+}
+
+.status-btn.rusak:hover { background: #faefc0; }
+
+/*  TOAST  */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--text);
+  color: #f5f3ee;
+  padding: 12px 22px;
+  border-radius: 40px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  opacity: 0;
+  transition: all 0.25s ease;
+  z-index: 9999;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/*  MODAL  */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(28,24,18,0.5);
+  z-index: 500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border-radius: 20px;
+  padding: 32px;
+  width: 420px;
+  max-width: 90vw;
+  box-shadow: 0 24px 64px rgba(28,24,18,0.2);
+}
+
+.modal-title {
+  font-family: var(--font-head);
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.modal-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.modal-btns .btn { margin-top: 0; }
+
+/* ── OMZET CARD ── */
+.omzet-section {
+  padding: 0 32px 32px;
+}
+
+.omzet-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.omzet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.omzet-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.omzet-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, #1c1812, #3a3228);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.omzet-title {
+  font-family: var(--font-head);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.omzet-subtitle {
+  font-size: 0.7rem;
+  color: var(--text3);
+  margin-top: 1px;
+}
+
+.omzet-bulan-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text3);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 14px;
+}
+
+.omzet-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  divide: 1px solid var(--border);
+}
+
+.omzet-stat {
+  padding: 20px 24px;
+  border-right: 1px solid var(--border);
+  position: relative;
+}
+
+.omzet-stat:last-child { border-right: none; }
+
+.omzet-stat-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 8px;
+}
+
+.omzet-stat-val {
+  font-family: var(--font-head);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.omzet-stat-val.green { color: var(--green); }
+.omzet-stat-val.muted { color: var(--text3); font-size: 1.1rem; }
+
+.omzet-stat-sub {
+  font-size: 0.72rem;
+  color: var(--text3);
+  margin-top: 5px;
+}
+
+.omzet-divider {
+  grid-column: 1/-1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Bayar manual section */
+.omzet-list {
+  padding: 0 24px 20px;
+}
+
+.omzet-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0 10px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2px;
+}
+
+.omzet-list-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+
+.btn-catat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--text);
+  color: #f5f3ee;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-catat:hover {
+  background: #3a3228;
+  transform: translateY(-1px);
+}
+
+.bayar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.82rem;
+  gap: 12px;
+}
+
+.bayar-row:last-child { border-bottom: none; }
+
+.bayar-nama { font-weight: 600; color: var(--text); }
+.bayar-kamar { color: var(--text3); font-size: 0.75rem; }
+.bayar-nominal { font-family: var(--font-head); color: var(--green); font-size: 0.9rem; font-weight: 700; }
+.bayar-tgl { font-size: 0.72rem; color: var(--text3); }
+
+.bayar-hapus {
+  background: none;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+}
+
+.bayar-hapus:hover { color: var(--red); background: var(--red-bg); }
+
+.omzet-empty {
+  padding: 24px 0;
+  text-align: center;
+  color: var(--text3);
+  font-size: 0.82rem;
+}
+
+/* Modal Catat Bayar */
+.modal-catat { max-width: 380px; }
+
+/*  RESPONSIVE  */
+@media (max-width: 800px) {
+  /* Layout: single column, scroll */
+  .layout {
+    grid-template-columns: 1fr;
+    min-height: unset;
+  }
+
+  /* Side panel becomes a bottom sheet */
+  .side-panel {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    top: auto;
+    height: auto;
+    max-height: 80vh;
+    border-top: 1px solid var(--border);
+    border-left: none;
+    border-radius: 20px 20px 0 0;
+    display: none;
+    z-index: 300;
+    box-shadow: 0 -8px 40px rgba(28,24,18,0.15);
+    overflow-y: auto;
+  }
+
+  .side-panel.mobile-open { display: flex; flex-direction: column; }
+
+  /* Drag handle for bottom sheet */
+  .side-panel::before {
+    content: '';
+    display: block;
+    width: 36px; height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    margin: 12px auto 0;
+    flex-shrink: 0;
+  }
+
+  /* Overlay when panel open */
+  .mobile-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(28,24,18,0.4);
+    z-index: 290;
+    backdrop-filter: blur(2px);
+  }
+  .mobile-overlay.show { display: block; }
+
+  /* Navbar */
+  .topbar { padding: 0 16px; height: 56px; }
+  .topbar-logo-sub { display: none; }
+  .topbar-stats { gap: 6px; }
+  .tstat { padding: 5px 10px; gap: 5px; }
+  .tstat-label { display: none; }
+  .tstat-val { font-size: 0.95rem; }
+
+  /* Room section */
+  .room-section { padding: 16px; }
+  .room-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+  .room-card { padding: 12px 10px 10px; }
+
+  /* Omzet section */
+  .omzet-section { padding: 0 16px 100px; }
+  .omzet-body { grid-template-columns: 1fr 1fr; }
+  .omzet-stat { border-bottom: 1px solid var(--border); }
+  .omzet-stat:nth-child(odd) { border-right: 1px solid var(--border); }
+  .omzet-stat:nth-child(even) { border-right: none; }
+  .omzet-stat:last-child, .omzet-stat:nth-last-child(2):nth-child(odd) { border-bottom: none; }
+  .omzet-stat-val { font-size: 1.1rem; }
+
+  /* Floor label */
+  .floor-label { margin-top: 20px; }
+
+  /* Section title */
+  .section-title { font-size: 1.1rem; }
+  .section-head { margin-bottom: 12px; }
+
+  /* Modal full screen on mobile */
+  .modal { width: 100%; max-width: 100%; border-radius: 20px 20px 0 0; margin: auto 0 0; }
+  .modal-overlay { align-items: flex-end; }
+
+  /* Bottom nav */
+  .bottom-nav {
+    display: flex;
+  }
+}
+
+/* Bottom nav — mobile only */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  z-index: 200;
+  padding: 8px 0 env(safe-area-inset-bottom, 8px);
+  box-shadow: 0 -4px 20px rgba(28,24,18,0.08);
+}
+
+.bottom-nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--text3);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: color 0.15s;
+}
+
+.bottom-nav-btn.active { color: var(--text); }
+.bottom-nav-btn svg { opacity: 0.5; transition: opacity 0.15s; }
+.bottom-nav-btn.active svg { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo-icon">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M3 9.5L12 3L21 9.5V20C21 20.5523 20.5523 21 20 21H15V15H9V21H4C3.44772 21 3 20.5523 3 20V9.5Z" fill="#1c1812" stroke="#1c1812" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="M9 21V15H15V21" stroke="#1c1812" stroke-width="1.5" stroke-linejoin="round"/>
+  </svg>
+</div>
+    <div class="topbar-logo-text">
+      <div class="topbar-logo-name">RumahSinggah</div>
+      <div class="topbar-logo-sub">Manajemen Kamar Kos</div>
+    </div>
+  </div>
+  <div class="topbar-stats">
+    <div class="tstat">
+      <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="rgba(255,255,255,0.4)"/></svg>
+      <div class="tstat-val white" id="s-total">—</div>
+      <div class="tstat-label">Total</div>
+    </div>
+    <div class="tstat">
+      <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#6de0a0"/></svg>
+      <div class="tstat-val green" id="s-kosong">—</div>
+      <div class="tstat-label">Kosong</div>
+    </div>
+    <div class="tstat">
+      <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#f08080"/></svg>
+      <div class="tstat-val red" id="s-terisi">—</div>
+      <div class="tstat-label">Terisi</div>
+    </div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- LEFT: ROOM MAP + OMZET -->
+  <div style="display:flex; flex-direction:column; overflow-y:auto;">
+    <div class="room-section">
+      <div class="section-head">
+        <div class="section-title">Peta Kamar</div>
+        <div class="legend">
+          <div class="leg"><div class="leg-dot kosong"></div> Kosong</div>
+          <div class="leg"><div class="leg-dot terisi"></div> Terisi</div>
+          <div class="leg"><div class="leg-dot rusak"></div> Rusak</div>
+        </div>
+      </div>
+      <div id="room-map"></div>
+    </div>
+
+    <!-- OMZET CARD -->
+    <div class="omzet-section">
+      <div class="omzet-card">
+        <div class="omzet-header">
+          <div class="omzet-header-left">
+            <div class="omzet-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e8c97e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+            </div>
+            <div>
+              <div class="omzet-title">Ringkasan Omzet</div>
+              <div class="omzet-subtitle">Otomatis + pencatatan manual</div>
+            </div>
+          </div>
+          <div class="omzet-bulan-label" id="omzet-bulan-label">—</div>
+        </div>
+
+        <div class="omzet-body">
+          <div class="omzet-stat">
+            <div class="omzet-stat-label">Estimasi Bulan Ini</div>
+            <div class="omzet-stat-val" id="omzet-estimasi">—</div>
+            <div class="omzet-stat-sub">dari kamar terisi</div>
+          </div>
+          <div class="omzet-stat">
+            <div class="omzet-stat-label">Sudah Masuk</div>
+            <div class="omzet-stat-val green" id="omzet-masuk">—</div>
+            <div class="omzet-stat-sub">dicatat manual</div>
+          </div>
+          <div class="omzet-stat">
+            <div class="omzet-stat-label">Belum Bayar</div>
+            <div class="omzet-stat-val muted" id="omzet-sisa">—</div>
+            <div class="omzet-stat-sub">estimasi - masuk</div>
+          </div>
+          <div class="omzet-stat">
+            <div class="omzet-stat-label">Transaksi</div>
+            <div class="omzet-stat-val" id="omzet-count">—</div>
+            <div class="omzet-stat-sub">tercatat bulan ini</div>
+          </div>
+        </div>
+
+        <div class="omzet-list">
+          <div class="omzet-list-head">
+            <div class="omzet-list-title">Riwayat Pembayaran</div>
+            <button class="btn-catat" onclick="bukaModalCatat()">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="13" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><line x1="1" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+              Catat Pembayaran
+            </button>
+          </div>
+          <div id="bayar-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: SIDE PANEL -->
+  <div class="side-panel" id="side-panel">
+    <div id="panel-content">
+      <div class="panel-body">
+        <div class="no-selection">
+          <div class="no-sel-icon"></div>
+          <div class="no-sel-text">Pilih kamar di sebelah kiri untuk melihat detail atau mengisi data penghuni baru.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL CATAT BAYAR -->
+<div class="modal-overlay" id="modal-catat">
+  <div class="modal modal-catat">
+    <div class="modal-title">Catat Pembayaran</div>
+    <div class="form-group">
+      <label class="form-label">Pilih Penghuni</label>
+      <select class="form-input" id="c-penghuni"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Jumlah Dibayar (Rp)</label>
+      <input class="form-input" type="number" id="c-jumlah" placeholder="1500000">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tanggal Bayar</label>
+      <input class="form-input" type="date" id="c-tgl">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Keterangan (opsional)</label>
+      <input class="form-input" id="c-ket" placeholder="Contoh: Bayar bulan Maret">
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-primary" onclick="simpanBayar()">Simpan</button>
+      <button class="btn btn-secondary" onclick="tutupModalCatat()">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TAMBAH KAMAR -->
+<div class="modal-overlay" id="modal-tambah">
+  <div class="modal">
+    <div class="modal-title">Tambah Kamar Baru</div>
+    <div class="form-group">
+      <label class="form-label">Nomor Kamar</label>
+      <input class="form-input" id="m-nokamar" placeholder="Contoh: 301">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Lantai</label>
+      <input class="form-input" type="number" id="m-lantai" placeholder="1" min="1" max="5">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Harga Sewa / Bulan (Rp)</label>
+      <input class="form-input" type="number" id="m-harga" placeholder="1500000">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Fasilitas (pisah koma)</label>
+      <input class="form-input" id="m-fasilitas" placeholder="AC, WiFi, KM Dalam">
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-primary" onclick="simpanKamarBaru()">Simpan Kamar</button>
+      <button class="btn btn-secondary" onclick="tutupModal()">Batal</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="mobile-overlay" id="mobile-overlay" onclick="tutupPanel()"></div>
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav">
+  <button class="bottom-nav-btn active" id="bnav-kamar" onclick="mobileTab('kamar')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3L21 9.5V20a1 1 0 0 1-1 1H15v-6H9v6H4a1 1 0 0 1-1-1V9.5z"/></svg>
+    Kamar
+  </button>
+  <button class="bottom-nav-btn" id="bnav-omzet" onclick="mobileTab('omzet')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    Omzet
+  </button>
+</nav>
+
+<script>
+// 
+//  DATA — edit di sini
+// 
+let rooms = [
+  { id:1, no:'101', lantai:1, harga:1500000, status:'terisi', fasilitas:['AC','WiFi','KM Dalam'],
+    penghuni:{ nama:'Budi Santoso', hp:'08123456789', masuk:'2024-01-15' } },
+  { id:2, no:'102', lantai:1, harga:1500000, status:'kosong', fasilitas:['AC','WiFi','KM Dalam'], penghuni:null },
+  { id:3, no:'103', lantai:1, harga:1500000, status:'terisi', fasilitas:['AC','WiFi','KM Dalam'],
+    penghuni:{ nama:'Sari Dewi', hp:'08129876543', masuk:'2024-02-01' } },
+  { id:4, no:'104', lantai:1, harga:1500000, status:'kosong', fasilitas:['AC','WiFi','KM Dalam'], penghuni:null },
+  { id:5, no:'201', lantai:2, harga:1600000, status:'kosong', fasilitas:['AC','WiFi','KM Dalam','Balkon'], penghuni:null },
+  { id:6, no:'202', lantai:2, harga:1600000, status:'rusak',  fasilitas:['AC','WiFi','KM Dalam'], penghuni:null },
+  { id:7, no:'203', lantai:2, harga:1600000, status:'terisi', fasilitas:['AC','WiFi','KM Dalam'],
+    penghuni:{ nama:'Andi Wijaya', hp:'08112233445', masuk:'2024-03-10' } },
+  { id:8, no:'204', lantai:2, harga:1600000, status:'kosong', fasilitas:['AC','WiFi','KM Dalam'], penghuni:null },
+];
+
+let selectedId = null;
+
+// ── OMZET DATA ──
+let bayarList = [
+  { id:1, penghuniNama:'Budi Santoso', kamar:'101', jumlah:1500000, tgl: new Date().toISOString().split('T')[0], ket:'Bayar bulan ini' },
+];
+
+function getNamaBulan() {
+  return new Date().toLocaleDateString('id-ID', { month:'long', year:'numeric' });
+}
+
+function renderOmzet() {
+  // Estimasi: semua kamar terisi × harga masing-masing
+  const estimasi = rooms.filter(r => r.status === 'terisi').reduce((s,r) => s + r.harga, 0);
+  const masuk    = bayarList.reduce((s,b) => s + b.jumlah, 0);
+  const sisa     = Math.max(0, estimasi - masuk);
+
+  document.getElementById('omzet-bulan-label').textContent = getNamaBulan();
+  document.getElementById('omzet-estimasi').textContent = 'Rp ' + fmtRp(estimasi);
+  document.getElementById('omzet-masuk').textContent    = 'Rp ' + fmtRp(masuk);
+  document.getElementById('omzet-sisa').textContent     = 'Rp ' + fmtRp(sisa);
+  document.getElementById('omzet-count').textContent    = bayarList.length;
+
+  const listEl = document.getElementById('bayar-list');
+  if (!bayarList.length) {
+    listEl.innerHTML = '<div class="omzet-empty">Belum ada pembayaran dicatat</div>';
+    return;
+  }
+
+  listEl.innerHTML = [...bayarList].reverse().map(b => `
+    <div class="bayar-row">
+      <div>
+        <div class="bayar-nama">${b.penghuniNama}</div>
+        <div class="bayar-kamar">Kamar ${b.kamar}${b.ket ? ' · ' + b.ket : ''}</div>
+      </div>
+      <div style="text-align:right; flex-shrink:0;">
+        <div class="bayar-nominal">Rp ${fmtRp(b.jumlah)}</div>
+        <div class="bayar-tgl">${fmtTgl(b.tgl)}</div>
+      </div>
+      <button class="bayar-hapus" onclick="hapusBayar(${b.id})" title="Hapus">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  `).join('');
+}
+
+function bukaModalCatat() {
+  const sel = document.getElementById('c-penghuni');
+  const terisi = rooms.filter(r => r.status === 'terisi' && r.penghuni);
+  sel.innerHTML = terisi.length
+    ? terisi.map(r => `<option value="${r.id}">${r.penghuni.nama} — Kamar ${r.no} (Rp ${fmtRp(r.harga)})</option>`).join('')
+    : '<option value="">Tidak ada penghuni aktif</option>';
+  document.getElementById('c-jumlah').value = '';
+  document.getElementById('c-tgl').value = today();
+  document.getElementById('c-ket').value = '';
+  document.getElementById('modal-catat').classList.add('open');
+  // Auto-fill harga
+  sel.onchange = () => {
+    const r = rooms.find(x => x.id == sel.value);
+    if (r) document.getElementById('c-jumlah').value = r.harga;
+  };
+  if (terisi.length) {
+    document.getElementById('c-jumlah').value = terisi[0].harga;
+  }
+}
+
+function tutupModalCatat() {
+  document.getElementById('modal-catat').classList.remove('open');
+}
+
+function simpanBayar() {
+  const roomId  = parseInt(document.getElementById('c-penghuni').value);
+  const jumlah  = parseInt(document.getElementById('c-jumlah').value);
+  const tgl     = document.getElementById('c-tgl').value;
+  const ket     = document.getElementById('c-ket').value.trim();
+  if (!roomId || !jumlah || !tgl) { showToast('Lengkapi data pembayaran!'); return; }
+
+  const r = rooms.find(x => x.id === roomId);
+  bayarList.push({ id: Date.now(), penghuniNama: r.penghuni.nama, kamar: r.no, jumlah, tgl, ket });
+  tutupModalCatat();
+  renderOmzet();
+  showToast('Pembayaran ' + r.penghuni.nama + ' berhasil dicatat');
+}
+
+function hapusBayar(id) {
+  if (!confirm('Hapus catatan pembayaran ini?')) return;
+  bayarList = bayarList.filter(b => b.id !== id);
+  renderOmzet();
+  showToast('Catatan dihapus');
+}
+
+document.getElementById('modal-catat').addEventListener('click', function(e) {
+  if (e.target === this) tutupModalCatat();
+});
+
+// 
+//  RENDER ROOM MAP
+// 
+function renderMap() {
+  const map = document.getElementById('room-map');
+  const lantais = [...new Set(rooms.map(r => r.lantai))].sort();
+
+  map.innerHTML = lantais.map(lt => {
+    const ltRooms = rooms.filter(r => r.lantai === lt);
+    return `
+      <div class="floor-label">Lantai ${lt}</div>
+      <div class="room-grid">
+        ${ltRooms.map(r => roomCardHTML(r)).join('')}
+        <div class="room-card" style="border-style:dashed; background:transparent; display:flex; align-items:center; justify-content:center; min-height:100px; color:var(--text3); font-size:0.78rem; font-weight:600; gap:6px; cursor:pointer;"
+             onclick="bukaModalTambah(${lt})">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="1" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Tambah
+        </div>
+      </div>
+    `;
+  }).join('') + `
+    <div style="margin-top:28px;">
+      <div class="floor-label">Lantai Baru</div>
+      <div class="room-grid">
+        <div class="room-card" style="border-style:dashed; background:transparent; display:flex; align-items:center; justify-content:center; min-height:100px; color:var(--text3); font-size:0.78rem; font-weight:600; gap:6px; cursor:pointer;"
+             onclick="bukaModalTambah(${Math.max(...lantais)+1})">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="1" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Tambah Lantai Baru
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Reapply selected
+  if (selectedId) {
+    const el = document.querySelector(`[data-id="${selectedId}"]`);
+    if (el) el.classList.add('selected');
+  }
+
+  updateStats();
+}
+
+function roomCardHTML(r) {
+  const tenantName = r.penghuni ? r.penghuni.nama.split(' ')[0] : 'Kosong';
+  return `
+    <div class="room-card ${r.status} ${selectedId===r.id?'selected':''}" 
+         data-id="${r.id}" onclick="pilihKamar(${r.id})">
+      <div class="room-number">${r.no}</div>
+      <div class="room-status-badge">${r.status}</div>
+      <div class="room-tenant">${tenantName}</div>
+      <div class="room-price">Rp ${fmtRp(r.harga)}/bln</div>
+    </div>
+  `;
+}
+
+// 
+//  SELECT ROOM → PANEL
+// 
+function pilihKamar(id) {
+  selectedId = id;
+  renderMap();
+  renderPanel();
+  document.getElementById('side-panel').classList.add('mobile-open');
+  document.getElementById('mobile-overlay').classList.add('show');
+}
+
+function renderPanel() {
+  const r = rooms.find(x => x.id === selectedId);
+  if (!r) return;
+
+  const panel = document.getElementById('panel-content');
+  const fasHtml = r.fasilitas.map(f => `<span style="background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:0.7rem;font-weight:600;color:var(--text2);">${f}</span>`).join('');
+
+  let bodyHtml = '';
+
+  if (r.status === 'terisi' && r.penghuni) {
+    // Show tenant + option to checkout
+    bodyHtml = `
+      <div class="tenant-card">
+        <div class="tenant-card-title">Data Penghuni</div>
+        <div class="info-row">
+          <span class="info-row-label">Nama</span>
+          <span class="info-row-value">${r.penghuni.nama}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-row-label">No HP</span>
+          <span class="info-row-value">${r.penghuni.hp}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-row-label">Tanggal Masuk</span>
+          <span class="info-row-value">${fmtTgl(r.penghuni.masuk)}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-row-label">Lama Sewa</span>
+          <span class="info-row-value">${hitungLama(r.penghuni.masuk)}</span>
+        </div>
+      </div>
+      <button class="btn btn-danger" onclick="checkoutPenghuni(${r.id})"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Penghuni Keluar</button>
+      <div class="divider"></div>
+      <div style="font-size:0.72rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px;">Ubah Status Kamar</div>
+      <div class="status-btns">
+        <button class="status-btn rusak" onclick="ubahStatus(${r.id},'rusak')">Tandai Rusak</button>
+      </div>
+    `;
+  } else if (r.status === 'kosong') {
+    // Form isi penghuni baru
+    bodyHtml = `
+      <div class="form-title">Isi Data Penghuni Baru</div>
+      <div class="form-group">
+        <label class="form-label">Nama Lengkap</label>
+        <input class="form-input" id="f-nama" placeholder="Nama penghuni">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nomor HP</label>
+        <input class="form-input" id="f-hp" placeholder="08xx-xxxx-xxxx" type="tel">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tanggal Masuk</label>
+        <input class="form-input" id="f-masuk" type="date" value="${today()}">
+      </div>
+      <button class="btn btn-primary" onclick="checkinPenghuni(${r.id})"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Simpan — Kamar Terisi</button>
+      <div class="divider"></div>
+      <div style="font-size:0.72rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px;">Ubah Status</div>
+      <div class="status-btns">
+        <button class="status-btn rusak" onclick="ubahStatus(${r.id},'rusak')">Tandai Rusak</button>
+      </div>
+    `;
+  } else if (r.status === 'rusak') {
+    bodyHtml = `
+      <div class="tenant-card">
+        <div class="tenant-card-title">Status Kamar</div>
+        <div style="font-size:0.875rem; color:var(--text2); padding:8px 0;">Kamar sedang dalam perbaikan / renovasi.</div>
+      </div>
+      <div style="font-size:0.72rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px;">Ubah Status</div>
+      <div class="status-btns">
+        <button class="status-btn kosong" onclick="ubahStatus(${r.id},'kosong')">Tandai Siap / Kosong</button>
+      </div>
+    `;
+  }
+
+  panel.innerHTML = `
+    <div class="panel-header">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div class="panel-title">Kamar ${r.no}</div>
+          <div class="panel-sub">Lantai ${r.lantai} · Rp ${fmtRp(r.harga)}/bulan</div>
+        </div>
+        <span class="detail-status ${r.status}">${{kosong:'Kosong',terisi:'Terisi',rusak:'Rusak'}[r.status]}</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;">${fasHtml}</div>
+    </div>
+    <div class="panel-body">${bodyHtml}</div>
+  `;
+}
+
+// 
+//  ACTIONS
+// 
+function checkinPenghuni(id) {
+  const nama  = document.getElementById('f-nama').value.trim();
+  const hp    = document.getElementById('f-hp').value.trim();
+  const masuk = document.getElementById('f-masuk').value;
+  if (!nama || !hp || !masuk) { showToast('Lengkapi semua data!'); return; }
+
+  const r = rooms.find(x => x.id === id);
+  r.status = 'terisi';
+  r.penghuni = { nama, hp, masuk };
+  renderMap();
+  renderPanel();
+  renderOmzet();
+  showToast('' + nama + ' berhasil masuk ke Kamar ' + r.no);
+}
+
+function checkoutPenghuni(id) {
+  const r = rooms.find(x => x.id === id);
+  if (!confirm(`Keluarkan ${r.penghuni.nama} dari Kamar ${r.no}?`)) return;
+  r.status = 'kosong';
+  r.penghuni = null;
+  renderMap();
+  renderPanel();
+  renderOmzet();
+  showToast('Kamar ' + r.no + ' kini kosong');
+}
+
+function ubahStatus(id, status) {
+  const r = rooms.find(x => x.id === id);
+  if (status === 'kosong') r.penghuni = null;
+  r.status = status;
+  renderMap();
+  renderPanel();
+  showToast('Status Kamar ' + r.no + ' → ' + status);
+}
+
+// 
+//  TAMBAH KAMAR
+// 
+let modalLantai = 1;
+
+function bukaModalTambah(lt) {
+  modalLantai = lt;
+  document.getElementById('m-lantai').value = lt;
+  document.getElementById('m-nokamar').value = '';
+  document.getElementById('m-harga').value = '';
+  document.getElementById('m-fasilitas').value = 'AC, WiFi, KM Dalam';
+  document.getElementById('modal-tambah').classList.add('open');
+}
+
+function tutupModal() {
+  document.getElementById('modal-tambah').classList.remove('open');
+}
+
+function simpanKamarBaru() {
+  const no      = document.getElementById('m-nokamar').value.trim();
+  const lantai  = parseInt(document.getElementById('m-lantai').value) || modalLantai;
+  const harga   = parseInt(document.getElementById('m-harga').value);
+  const fasStr  = document.getElementById('m-fasilitas').value;
+
+  if (!no || !harga) { showToast('Isi nomor kamar dan harga!'); return; }
+  if (rooms.find(r => r.no === no)) { showToast('Nomor kamar sudah ada!'); return; }
+
+  rooms.push({
+    id: Date.now(),
+    no, lantai, harga,
+    status: 'kosong',
+    fasilitas: fasStr.split(',').map(s => s.trim()).filter(Boolean),
+    penghuni: null
+  });
+
+  tutupModal();
+  renderMap();
+  showToast('Kamar ' + no + ' berhasil ditambahkan');
+}
+
+// 
+//  UTILS
+// 
+function updateStats() {
+  document.getElementById('s-total').textContent  = rooms.length;
+  document.getElementById('s-kosong').textContent = rooms.filter(r=>r.status==='kosong').length;
+  document.getElementById('s-terisi').textContent = rooms.filter(r=>r.status==='terisi').length;
+}
+
+function fmtRp(n) {
+  return new Intl.NumberFormat('id-ID').format(n);
+}
+
+function fmtTgl(str) {
+  if (!str) return '—';
+  return new Date(str).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+}
+
+function today() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function hitungLama(masuk) {
+  const diff = Date.now() - new Date(masuk);
+  const bln  = Math.floor(diff / (1000*60*60*24*30));
+  const hari = Math.floor((diff % (1000*60*60*24*30)) / (1000*60*60*24));
+  if (bln === 0) return hari + ' hari';
+  return bln + ' bulan ' + hari + ' hari';
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// Close modal on overlay click
+document.getElementById('modal-tambah').addEventListener('click', function(e) {
+  if (e.target === this) tutupModal();
+});
+
+// ── MOBILE ──
+function tutupPanel() {
+  document.getElementById('side-panel').classList.remove('mobile-open');
+  document.getElementById('mobile-overlay').classList.remove('show');
+  selectedId = null;
+  renderMap();
+}
+
+function mobileTab(tab) {
+  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('bnav-' + tab).classList.add('active');
+  const roomSec  = document.querySelector('.room-section');
+  const omzetSec = document.querySelector('.omzet-section');
+  if (tab === 'kamar') {
+    roomSec.style.display  = '';
+    omzetSec.style.display = 'none';
+  } else {
+    roomSec.style.display  = 'none';
+    omzetSec.style.display = '';
+  }
+}
+
+// ── INIT ──
+renderMap();
+renderOmzet();
+</script>
+</body>
+</html>
