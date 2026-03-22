@@ -800,13 +800,22 @@ body {
     border-top: 1px solid var(--border);
     border-left: none;
     border-radius: 20px 20px 0 0;
-    display: none;
     z-index: 300;
     box-shadow: 0 -8px 40px rgba(28,24,18,0.15);
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease;
   }
 
-  .side-panel.mobile-open { display: flex; flex-direction: column; }
+  .side-panel.mobile-open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
 
   /* Drag handle for bottom sheet */
   .side-panel::before {
@@ -821,14 +830,20 @@ body {
 
   /* Overlay when panel open */
   .mobile-overlay {
-    display: none;
+    display: block;
     position: fixed;
     inset: 0;
     background: rgba(28,24,18,0.4);
     z-index: 290;
     backdrop-filter: blur(2px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
   }
-  .mobile-overlay.show { display: block; }
+  .mobile-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
 
   /* Navbar */
   .topbar { padding: 0 16px; height: 56px; }
@@ -869,7 +884,43 @@ body {
   }
 }
 
-/* Bottom nav — mobile only */
+/* Tab section fade transition */
+.tab-section {
+  animation: tabFadeIn 0.25s ease;
+}
+
+@keyframes tabFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Room card tap ripple on mobile */
+@media (max-width: 800px) {
+  .room-card {
+    -webkit-tap-highlight-color: transparent;
+    active-scale: 0.96;
+  }
+
+  .room-card:active {
+    transform: scale(0.96);
+    transition: transform 0.1s ease;
+  }
+
+  /* Bottom nav active tap */
+  .bottom-nav-btn:active {
+    transform: scale(0.9);
+    transition: transform 0.1s ease;
+  }
+
+  /* Drag handle animation */
+  .side-panel::before {
+    transition: background 0.2s;
+  }
+
+  .side-panel.mobile-open::before {
+    background: var(--text3);
+  }
+}
 .bottom-nav {
   display: none;
   position: fixed;
@@ -1497,11 +1548,17 @@ function mobileTab(tab) {
   const roomSec  = document.querySelector('.room-section');
   const omzetSec = document.querySelector('.omzet-section');
   if (tab === 'kamar') {
-    roomSec.style.display  = '';
     omzetSec.style.display = 'none';
+    roomSec.style.display  = '';
+    roomSec.classList.remove('tab-section');
+    void roomSec.offsetWidth; // force reflow
+    roomSec.classList.add('tab-section');
   } else {
     roomSec.style.display  = 'none';
     omzetSec.style.display = '';
+    omzetSec.classList.remove('tab-section');
+    void omzetSec.offsetWidth;
+    omzetSec.classList.add('tab-section');
   }
 }
 
